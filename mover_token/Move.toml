@@ -1,0 +1,12 @@
+[package]
+name = "mover_token"
+version = "0.1.0"
+# published-at = ""
+edition = "2024.beta"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet" }
+
+[addresses]
+mover_token = "0x0"
+# upgrade_cap = ""

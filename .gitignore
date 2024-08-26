@@ -1,0 +1,6 @@
+.DS_Store
+build
+sui.log.*
+_*
+*.lock
+*.txt
