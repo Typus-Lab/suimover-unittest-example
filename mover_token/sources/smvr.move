@@ -1,6 +1,13 @@
 module mover_token::smvr {
+    use sui::balance::Balance;
+    use sui::clock::Clock;
     use sui::coin::{Self, Coin, TreasuryCap, CoinMetadata};
+    use sui::dynamic_field;
+    use sui::sui::SUI;
+    use std::type_name::{Self, TypeName};
     use sui::url;
+
+    use mover_token::pool::{Self, Pool};
 
     const C_MAX_SUPPLY: u64 = 666_666_666_666_666_666;
 
@@ -85,7 +92,39 @@ module mover_token::smvr {
         coin::update_icon_url(&registry.treasury_cap, &mut registry.coin_metadata, url);
     }
 
-    // Exercise:
-    // Please add a feature that an user can use 100 SUI to mint 1 SMVR, or burn 1 SMVR for 100 SUI
+    entry fun mint_and_stake(
+        registry: &mut Registry,
+        pool: &mut Pool,
+        sui_coin: Coin<SUI>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let sui_coin_value = sui_coin.value();
+        let smvr_amount = sui_coin_value / 100;
+        let total_supply = coin::total_supply(&registry.treasury_cap);
+        assert!(smvr_amount <= C_MAX_SUPPLY - total_supply, E_EXCEED_MAX_SUPPLY);
+        let smvr_coin = coin::mint(&mut registry.treasury_cap, smvr_amount, ctx);
+        pool::stake<SMVR>(pool, smvr_coin, clock, ctx);
+        store_coin<SUI>(registry, sui_coin);
+    }
+
+    fun store_coin<TOKEN>(
+        registry: &mut Registry,
+        coin: Coin<TOKEN>
+    ) {
+        let token_type = type_name::get<TOKEN>();
+        let balance = coin.into_balance();
+        if (dynamic_field::exists_<TypeName>(&registry.id, token_type)) {
+            let pool_balance = dynamic_field::borrow_mut<TypeName, Balance<TOKEN>>(&mut registry.id, token_type);
+            pool_balance.join(balance);
+        } else {
+            dynamic_field::add(&mut registry.id, token_type, balance);
+        };
+    }
+
+    // Exercise 1:
+    // Is bug existed in function mint_and_stake? Definitely! Please test it and fix it!
+    // Exercise 2:
+    // Please add a feature that an user can unstake from pool and burn each SMVR for 100 SUI
     // Also, create test functions to test if it works!
 }
