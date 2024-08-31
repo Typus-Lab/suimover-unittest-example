@@ -949,7 +949,6 @@ module mover_token::test_pool {
         assert!(shares[shares.length()-1] == unsubscrbed_share, 0);
         assert!(unsubscribed_ts_ms[unsubscribed_ts_ms.length()-1] == unsubscribe_ts_ms, 0);
         assert!(unlocked_ts_ms[unlocked_ts_ms.length()-1] == unsubscribe_ts_ms + UNLOCK_COUNTDOWN_TS_MS, 0);
-        assert!(unlocked_ts_ms[unlocked_ts_ms.length()-1] == unsubscribe_ts_ms + UNLOCK_COUNTDOWN_TS_MS, 0);
         let last_incentive_price_index = pool::get_last_incentive_price_index(&pool);
         let unsubscribed_index = unsubscribed_incentive_price_index[unsubscribed_incentive_price_index.length() - 1];
         let mut keys = unsubscribed_index.keys();
